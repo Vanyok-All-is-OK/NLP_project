@@ -1,0 +1,234 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage[T2A]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2.5cm]{geometry}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{multicol}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
+\usepackage{wasysym}
+\usepackage{amsmath}
+\usepackage[most]{tcolorbox}
+\usepackage{parskip}
+\graphicspath{{images/}}
+
+
+\usepackage{fontspec}
+\setmainfont{Helvetica}
+% \setmainfont{CMU Bright}
+% \setmainfont{CMU Serif}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=cyan, % blue
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={HW1 Dmitry Uspenskiy},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\imgh}[3]
+{
+\begin{figure}[h]
+\center{\includegraphics[width=#1]{#2}}
+\caption{#3}
+\label{ris:#2}
+\end{figure}
+}
+
+\newcommand{\condition}[1]
+{
+\begin{tcolorbox}[enhanced jigsaw,
+    sharp corners,
+    boxrule=0.5pt, 
+    colback=white!30!white,   
+    borderline={0.5pt}{-2pt}{black,solid} % 0.5pt linewith, -2pt outside, black solid linestyle
+]
+#1
+\end{tcolorbox}
+}
+
+% \setcounter{section}{-1} %Нумерация с 0
+\hyphenpenalty=10000
+
+\pagestyle{fancyplain}
+\headheight 35pt
+\rhead{\textbf{Выполнили:} Успенский Д. А. \\ Беляев И. А. \\ Карбаев С. А. \\ \textbf{Группа:} 208}
+\chead{\textbf{\large КТ 1} \\ [3ex] }
+\lhead{ФКН ВШЭ \\ Автоматическая Обработка Текста \\ Осенний семестр 2023 \\ } 
+\lfoot{}
+\cfoot{}
+\rfoot{\small\thepage}
+\headsep 3em
+
+\begin{document}
+\tableofcontents
+\newpage
+
+\section{Описание предметной области и постановка задачи}
+В качестве проекта мы выбрали \href{https://semantic-textual-relatedness.github.io/}{\textit{Task 1: Semantic Textual Relatedness (STR)}}, где предлагается решить задачу по автоматическому определению степени семантической связи между парами предложений на различных языках.
+
+\subsection{Введение в предметную область}
+\textbf{Semantic Textual Relatedness} (семантическая текстовая родственность) показывает степень, в которой две единицы языка, такие как слова, фразы или предложения, близки по своему значению. Это мера того, насколько семантически схожи или родственны две лингвистические единицы друг другу. Задача измерения этой связи возникает естественным образом при работе с текстовыми данными.
+
+Применения меры семантического сходства:
+\begin{itemize}
+    \item \textbf{Лингвистические}
+    \begin{itemize}
+        \item изучение отношения между различными языковыми единицами
+        \item измерение тесктовой связности
+        \item сравнение стиля текстов на различных языках
+    \end{itemize}
+
+    \item \textbf{NLP}
+    \begin{itemize}
+        \item поиск информации в тексте
+        \item обобщение документов
+        \item оценка методологий: инструмент сравнения с groud truth текстами
+        \item создание датасетов: наборы данных семантической текстовой связанности, таких как STR-2022 (Mohamed Abdalla et. al. , 2023)
+    \end{itemize}
+\end{itemize}
+
+\subsection{Постановка задачи}
+На соревновании мы выбрали трек \textit{A: Supervised}. Необходимо обучить модель, которая предсказываеи STR двух предложений. Доступны тренировчный и тестовый датасеты на английском.
+
+\newpage
+
+\section{Описание датасета}
+\subsection{Структура датасета}
+Каждый объект в датасете представляет собой пару предложений и оценку, отражающую степень семантической текстовой связи между двумя предложениями. Баллы могут варьироваться от 0 (максимально не связаны) до 1 (максимально связаны). Эти оценки были определены путем ручного аннотирования. В частности, использовался метод \textit{comparative annotation}, чтобы избежать известных ограничений традиционных методов оценки сходства.
+
+**пример аннотации** 
+
+\subsection{Датасет}
+\textbf{IMDB Dataset} - датасет отзывов к фильмам, классифицированным по тональности. По 25000 положительных и отрицательных объектов. \\
+Признаки:
+\begin{itemize}
+    \item \textbf{review} - текст отзыва
+    \item \textbf{sentiment} - тональность текста
+\end{itemize}
+
+\subsection{Предобработка}
+Следующие обработки были применены перед применением классических алгоритмов NLP. 
+
+\begin{enumerate}
+    \item \textbf{Удаление следов html разметки.}
+    Было замечено, что почти в каждом объекте встречаются теги по типу \textit{<br /><br />}. От них избавляемся с помощью BeautifulSoup.
+
+    \item \textbf{Токенизация.}
+    Предложения приводились в нижний регистр и разбивались по словам из английских символов.
+
+    \item \textbf{Лемматизация.}
+    Слова классифицировались по части речи и приводились в инфинитив с помощью WordNet.
+\end{enumerate}
+\newpage
+
+\section{Эксплоративный анализ}
+\condition{
+\begin{enumerate}
+    \item Найдите топ-300 слов по частоте без учета стоп-слов.
+    \item Найдите топ слов, характеризующих каждую тональность отдельно.
+\end{enumerate}
+\textbf{[бонус]} Найдите еще что-то интересное в корпусе (что-то специфичное для данной темы)
+}
+\vspace{5mm}
+
+Самые популярные слова: \\
+
+\begin{tabular}{lr}
+\hline
+word & count \\
+\hline
+movie & 103234 \\
+film & 95844 \\
+one & 55427 \\
+make & 46122 \\
+like & 44296 \\
+\dots & \dots \\
+\hline
+\end{tabular}
+\vspace{5mm}
+
+Для нахождения топ слов для разных классов оценим разделяющую способность каждого слова:
+$$ P = \left \{ \text{text} \ | \ \text{word} \in \text{text}, \ \text{text}_\text{label} = \text{positive} \right \} $$
+
+$$ N = \left \{ \text{text} \ | \ \text{word} \in \text{text}, \ \text{text}_\text{label} = \text{negative} \right \} $$
+
+$$ \text{word}^{\text{positive}}_{\text{separating power}} = \frac{|P|}{|P| + |N| + \alpha} $$
+
+$$ \text{word}^{\text{negative}}_{\text{separating power}} = \frac{|N|}{|P| + |N| + \alpha} $$
+
+$\alpha$ - коэффициент значимости, выбрал равным 100. Таким образом слова, которые встретились всего пару раз в одном классе текстов не будут иметь высокую разделяющую способность.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrr}
+\hline
+word & positive & negative \\
+\hline
+wonderful & 0.803922 & 0.165913 \\
+excellent & 0.798810 & 0.177381 \\
+super & 0.796998 & 0.131523 \\
+beautifully & 0.776181 & 0.121150 \\
+fantastic & 0.758344 & 0.179852 \\
+\dots & \dots & \dots \\
+\hline
+\end{tabular}
+\caption{Топ по позитивной разделяющей способности}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrr}
+\hline
+word & positive & negative \\
+\hline
+waste & 0.084324 & 0.893250 \\
+awful & 0.085755 & 0.886037 \\
+terrible & 0.125291 & 0.845571 \\
+poorly & 0.089933 & 0.842953 \\
+horrible & 0.129672 & 0.832189 \\
+\dots & \dots & \dots \\
+\hline
+\end{tabular}
+\caption{Топ по негативной разделяющей способности}
+\end{table}
+
+\textbf{[бонус]} Дополнительно определим количество слов с высокой разделяющей способностью (> 0.7) для тональностей. Таких 25 для положтельного и 48 для отрицательного класса. Как видим, мы имеем дело с негативным комьюнити, которое знает больше разных негативных слов, нежели позитивных. Хотя, например, слово 'zombie' чаще встречается в негативных отзывах, из чего можно сделать выводы, что фильмы про зомби так себе. 
+
+Слов с высокой разделяющей способностью мало относительно общего числа уникальных слов (85949). Значит, мы потеряем слишком много информации, если ограничим словарь только на такие слова.
+
+% \imgh{17cm}{words_count.png}{Распределение длин отзывов по тональностям}
+
+Длины отзывов имеют схожие распределения. Это значит, что нету смысла вводить признак длины отзыва.
+\newpage
+
+\section{Описание выбранной архитектуры}
+\newpage
+
+
+\section{Описание полученных результатов}
+\newpage
+
+
+\section{Направления дальнейшей работы}
+\newpage
+
+
+\section{Источники}
+\begin{itemize}
+    \item Nedjma Ousidhoum et. al. SemEval 2024 Task 1: Semantic Textual Relatedness (STR)
+   \href{https://semantic-textual-relatedness.github.io/}{Source}
+
+   \item Mohamed Abdalla et. al. , 2023 "What Makes Sentences Semantically Related?
+   A Textual Relatedness Dataset and Empirical Study"
+\end{itemize}
+\end{document}

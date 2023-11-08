@@ -111,3 +111,7 @@ wandb/
 .vscode/
 .idea/
 __MACOSX/
+*.toc
+*.gz
+*.aux
+*.out

@@ -1,0 +1,9 @@
+numpy
+pandas
+seaborn
+torch
+nltk
+tqdm
+scikit-learn
+scipy
+pytorch-pretrained-bert

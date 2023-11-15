@@ -24,3 +24,4 @@ For predictions use __bert_solution.ipynb__.
 
 ## Authors
 Dmitrii Uspenskii HSE AMI 4th year.
+Karbayev Saruar HSE AMI 4th year.

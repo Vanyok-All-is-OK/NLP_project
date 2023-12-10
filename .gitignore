@@ -115,3 +115,5 @@ __MACOSX/
 *.gz
 *.aux
 *.out
+pred_eng_a.csv
+bert_cos_sim.zip

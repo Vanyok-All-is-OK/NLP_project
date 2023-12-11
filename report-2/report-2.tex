@@ -1,0 +1,138 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage[T2A]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2.5cm]{geometry}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{multicol}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
+\usepackage{wasysym}
+\usepackage{amsmath}
+\usepackage[most]{tcolorbox}
+\usepackage{parskip}
+\graphicspath{{images/}}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{float}
+
+
+\usepackage{fontspec}
+\setmainfont{Helvetica}
+% \setmainfont{CMU Bright}
+% \setmainfont{CMU Serif}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=cyan, % blue
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={HW1 Dmitry Uspenskiy},
+    pdfpagemode=FullScreen,
+}
+
+\newcommand{\imgh}[3]
+{
+\begin{figure}[H]
+\center{\includegraphics[width=#1]{#2}}
+\caption{#3}
+\label{ris:#2}
+\end{figure}
+}
+
+% \setcounter{section}{-1} %Нумерация с 0
+\hyphenpenalty=10000
+
+\pagestyle{fancyplain}
+\headheight 35pt
+\rhead{\textbf{Выполнили:} Успенский Д. А. \\ Беляев И. А. \\ Карбаев С. А. \\ \textbf{Группа:} 208}
+\chead{\textbf{\large КТ 2} \\ [3ex] }
+\lhead{ФКН ВШЭ \\ Автоматическая Обработка Текста \\ Осенний семестр 2023 \\ } 
+\lfoot{}
+\cfoot{}
+\rfoot{\small\thepage}
+\headsep 3em
+
+\begin{document}
+\tableofcontents
+\newpage
+
+\section{Краткое описание контрольной точки 1}
+
+Давайте немного вспомним какая наша цель.
+
+Мы участвуем в соревновании по оценке семантической текстовой связи между предложениями. В датасете есть два предложения и оценка их семантического сходства, полученная с помощью асессоров. Метрикой качества является коэффициент ранговой корреляции Спирмена.
+
+$$
+r_s = \rho_{R(X), R(Y)} = \frac{cov(R(X), R(Y))}{\sigma_{(R(X))} \sigma_{(R(Y))}}
+$$
+\begin{itemize}
+    \item $\rho$ обозначает коэффициент корреляции Пирсона, но применяется к ранговым переменным
+    \item $cov(R(X), R(Y))$ является ковариацией ранговых переменных
+    \item $\sigma_{(R(X))}$ и $\sigma_{(R(Y))}$ являются стандартными отклонениями ранговых переменных
+\end{itemize}
+Коэффициент отражает, насколько хорошо предсказанные системой скоры согласуются с суждениями человека.
+
+Для бейслайн решения мы использовали TF-IDF вместе с RandomForestClassifier. Получили корреляцию 0.435. \\
+Авторы соревнования предложили использовать в качестве бейслайна долю общих слов в предложениях. Такой подход дал корреляцию 0.63.
+
+Наша основная модель это Bert. Мы вычисляли для каждого предложения его Bert-эмбеддинги, затем оценивали схожесть между предложениями как косинусное сходство этих эмбеддингов. Его выбрали из-за простоты реализации, а также потому, что он улучшает анализ слов относительно базового решения организаторов. 
+
+\newpage
+
+\section{Новая модель}
+
+Для улучшения метрики качества мы стали пробовать другие Bert-base модели. Рассмотрим подробнее каждую из них.
+\begin{itemize}
+    \item \href{https://huggingface.co/albert-base-v2}{\textbf{ALBERT}} \\
+    Модель ALBERT была предварительно обучена на \href{https://yknzhu.wixsite.com/mbweb}{BookCorpus}, наборе данных, состоящем из 11 038 неопубликованных книг и \href{https://en.wikipedia.org/wiki/English_Wikipedia}{English Wikipedia} (исключая списки, таблицы и заголовки). \\
+    Модель выдала корреляцию $0.08\%$.
+
+    \item \href{https://huggingface.co/roberta-base}{\textbf{RoBERTa}} \\
+    Модель RoBERTa была предварительно обучена на объединении пяти наборов данных:
+    \begin{itemize}
+        \item \href{https://yknzhu.wixsite.com/mbweb}{BookCorpus} — набор данных, состоящий из 11 038 неопубликованных книг;
+        \item \href{https://en.wikipedia.org/wiki/English_Wikipedia}{English Wikipedia} (за исключением списков, таблиц и заголовков);
+        \item \href{https://commoncrawl.org/2016/10/news-dataset-available/}{CC-News} - набор данных, содержащий 63 миллиона новостных статей на английском языке, просканированных в период с сентября 2016 года по февраль 2019 года;
+        \item \href{https://github.com/jcpeterson/openwebtext}{OpenWebText}, воссоздание набора данных WebText с открытыми источниками, используемый для обучения GPT-2;
+        \item \href{https://arxiv.org/abs/1806.02847}{Stories}, содержащий подмножество данных CommonCrawl.
+    \end{itemize}
+    Модель показала корреляцию $0.08\%$.
+
+    \item \href{https://huggingface.co/distilbert-base-uncased}{DistilBERT} \\
+    Как и ALBERT, был предобучен на BookCorpus и English Wikipedia. \\
+    Данная модель показала качество $0.797\%$.
+\end{itemize}
+
+По итогу мы использовали модель DistilBert из-за маленькой выборки входных данных. Она является более облегченной версией Bert, которая, практически, не теряет своей эффективности, но ощутимо увеличивает скорость. 
+
+Использование небольшой модели снизило переобучение, которое наблюдалось при использовании крупных Bert-base моделей.
+
+\newpage
+
+\section{Результаты на соревновании}
+
+\imgh{17cm}{leaderboard-2.png}{Leaderboard}
+
+Выделение синим - наш текущий результат 0.797 (User spoker)
+
+Наш прошлый результат - 0.671 (User ivan belyaev)
+
+\newpage
+
+\section{Итоги}
+
+В конечном итоге у нас получилось достичь около 80$\%$ точности ответа. Как ни странно, облегчение модели помогло нам улучшить результат. 
+
+Большинство участников, которые нас превзошли, получили результаты буквально на пару процентов выше. От лучшего результата мы отстаем не более чем на $5\%$
+
+
+
+\end{document}
